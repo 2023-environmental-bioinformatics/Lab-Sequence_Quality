@@ -88,8 +88,32 @@ For this, rather than requesting interactive `srun` resources, we're going to ru
 
 `cp slurm_header.txt isopod_qc.txt`
 
+Open up your new slurm file. Modify it as needed - at a minimum, you need to give it a name (twice!), and enter your email address. You should also tailor the resource request to your needs. For today, set the following:
+
+```
+#SBATCH --mem=5G
+#SBATCH --time=02:00:00
+```
+
+Now, put the commands you want to run **under** the header.
+
+```
+trim_galore -q 20 --length 60 --stringency 3 --paired --fastqc SRR8281009_1.fastq SRR8281009_2.fastq
+```
+
+Submit the script via slurm:
+
+`sbatch isopod_qc.txt`
+
+Check to see if it's running. Check your email - you should get emailed when you script starts running (not necessarily immediately! large requests may sit in the queue for a while), and when it's ended. The ending emails are often quite useful - they include basic info on **how** the script ended (COMPLETED, TIMED_OUT, FAILED), and **how long** they took to run. This can be very helpful when you're trying to figure out what kind of resources to request for a really big job, especially if it involves doing the same thing to a bunch of samples. 
+
+Now take a look at the files in this folder. What's changed?
+
+Open up your `*.log` file.
 
 
+
+----------
 
 #### More SRA details
 
@@ -112,9 +136,6 @@ There are also ways to parallelize the dowload (e.g. https://github.com/rvalieri
 -conda install **parallel-fastq-dump**
 
 -use a for loop to download all the sequencing runs using parallel-fastq-dump and taking advantage of the 4 cores you requested e.g. ```parallel-fastq-dump --s ${i} --threads 4 -O sra/ --split-files --gzip```
-
-
-----------
 
 
 #### Get accession list
