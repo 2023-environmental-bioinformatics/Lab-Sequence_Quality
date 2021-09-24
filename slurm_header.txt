@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#SBATCH --partition=compute
+#SBATCH --qos=compute
+#SBATCH --job-name=NAME_HERE
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=EMAIL_ADDRESS
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=5G
+#SBATCH --time=02:00:00
+#SBATCH --output=NAME_HERE_%j.log
+#export OMP_NUM_THREADS=1
