@@ -1,10 +1,10 @@
 # Lab-Sequence_Quality
 
-Let's get outselves some sequence data to play with. Data from many projects are available at the Sequence Read Archive (SRA) - this is like GenBank for raw high-throughput sequencing data. (Much of the HTS data from published papers gets archived here.)
+Let's get ourselves some sequence data to play with. Data from many projects are available at the Sequence Read Archive (SRA) - this is like GenBank for raw high-throughput sequencing data. (Much of the HTS data from published papers gets archived here.)
 
 ## Download sequences from SRA
 
-Luckily, the SRA has its own command line toolkit `sra-tools` for retrieving data. Some of these files can be very big, and this lets us directly download files to Poseidon. Plus, with a command line tool, we can use bash scripting to automate retrieval of lots of sequences at once. (More on this later.)
+Luckily, the SRA has its own command line toolkit `sra-tools` for retrieving data. This lets us directly download files to Poseidon, which is handy as some of these files can be big. Plus, with a command line tool, we can use bash scripting to automate retrieval of lots of sequences at once. (More on this later.)
 
 #### Install sra-tools
 
@@ -57,7 +57,7 @@ If you're running a bunch of jobs and only want to cancel one of them, find its 
 
 `scancel JOBID`
 
-#### Examine sequence quality
+## Examine sequence quality
 
 All right, let's set up a new environment to do some quality control on our shiny new parasite sequence data. There are many ways to quality-trim data. I like Trim Galore!, which we'll use here. Another popular option is Trimmomatic.
 
@@ -80,7 +80,7 @@ scp USERNAME@poseidon.whoi.edu:/[PATH_TO_SRA_FOLDER]/*html .
 
 Now, on your own computer, navigate to those files and open the one ending in `*.html`. This should open a webpage with a bunch of summary graphs. (This will open whether or not you're online - it is coded in html, but it's just rendering everything in the `*.zip` folder in a pretty, user-friendly format.)
 
-#### Trim sequences and check quality again
+## Trim sequences and check quality again
 
 These sequences look OK, but we definitely have some low-quality (Phred < 20) bases. Let's get rid of them, and while we're at it, let's remove any stray adaptor sequence as well. This **should** get removed as part of the sequencing process, before reads even make it to the user, but the process isn't always perfect - especially for older sequences.
 
@@ -98,45 +98,33 @@ Open up your new slurm file. Modify it as needed - at a minimum, you need to giv
 Now, put the commands you want to run **under** the header.
 
 ```
-trim_galore -q 20 --length 60 --stringency 3 --paired --fastqc SRR8281009_1.fastq SRR8281009_2.fastq
+trim_galore -q 20 --length 60 --paired --fastqc SRR8281009_1.fastq SRR8281009_2.fastq
 ```
+This is a pretty typical command for a program run via the command line. First is the name of the program - this is case- and punctuation-sensitive. Then a bunch of flags to pass various parameters to the program. Some flags take additional arguments that you define (`-q 20`), and others are just essentially on/off switches for certain behaviors (`--paired`). Sometimes flags will start with two dashes (`--paired`), and sometimes with one (`-q 20`). This varies from program to program, but usually the double-dashed flags spell out a more complete command, while the single-dashed commands are a shortened (often single-letter) abbreviation. Use the `--help` option - and the program's documentation - liberally to keep all of this straight.
+
+In this case, we're telling Trim Galore! that we want to trim bases off the ends of the sequences if they have Phred < 20 (`-q 20`), to drop sequences altogether if they are < 60 bp long after trimming (`--length 60`), that it should expect paired-end reads (`--paired`), and that you want to run FastQC on the cleaned reads (`--fastqc`). Finally, you're telling the program, **in order**, the forward and reverse read files you want processed. There are a lot of other parameters you can set, too - tune these settings to your project's needs. For example, these reads are 75 bp long, so 60 bp seems reasonable for a minimum post-cleaning length. You'd probably want to change this if your reads are, say 50 bp or 150 bp. 
 
 Submit the script via slurm:
 
 `sbatch isopod_qc.txt`
 
-Check to see if it's running. Check your email - you should get emailed when you script starts running (not necessarily immediately! large requests may sit in the queue for a while), and when it's ended. The ending emails are often quite useful - they include basic info on **how** the script ended (COMPLETED, TIMED_OUT, FAILED), and **how long** they took to run. This can be very helpful when you're trying to figure out what kind of resources to request for a really big job, especially if it involves doing the same thing to a bunch of samples. 
+Check to see if it's running. Since you submitted the script to the queue, there's no output to the terminal. Where do you think this is going (is it going anywhere? into the void?)?
+
+Check your email - you should get emailed when you script starts running (not necessarily immediately! large requests may sit in the queue for a while), and when it's ended. The ending emails are often quite useful - they include basic info on **how** the script ended (COMPLETED, TIMED_OUT, FAILED), and **how long** they took to run. This can be very helpful when you're trying to figure out what kind of resources to request for a really big job, especially if it involves doing the same thing to a bunch of samples.
 
 Now take a look at the files in this folder. What's changed?
 
 Open up your `*.log` file.
 
+Now, move your new `*.zip` and `*.html` files over to your local computer, and take a look.
+
+
+> Suppose you want to retrieve and clean a bunch of samples, and you have a list of sample numbers (`SRA_list.txt` in this repo). Write a script (or two) to automate this process, and embed it / them in a slurm script to submit.
 
 
 ----------
 
-#### More SRA details
-
--use a for loop to download all the sequencing runs. I recommend modifying the command we learned above to produce compressed files: e.g. ```fastq-dump --split-files --gzip -O sra/ ${i}``` [${i} is your variable i.e. sra-id]
-
-
-
-There are also ways to parallelize the dowload (e.g. https://github.com/rvalieris/parallel-fastq-dump)
-
--go onto poseidon and navigate to your working folder
-
--start a tmux session
-
--start a slurm job: e.g. ```srun -p compute --time=24:00:00 --ntasks-per-node=4 --mem=8gb --pty bash``` *in this case you request 4 cores*
-
--load anaconda
-
--activate your conda environment
-
--conda install **parallel-fastq-dump**
-
--use a for loop to download all the sequencing runs using parallel-fastq-dump and taking advantage of the 4 cores you requested e.g. ```parallel-fastq-dump --s ${i} --threads 4 -O sra/ --split-files --gzip```
-
+## More SRA details
 
 #### Get accession list
 Go to [NCBI](http://www.ncbi.nlm.nih.go/v) http://www.ncbi.nlm.nih.gov
@@ -167,4 +155,20 @@ Download the Accession List and the Run Info Table
 You can transfer files (e.g. the accession list) from your local machine to poseidon (and vice versa) by using scp ()scp *source* *destination* )
 ```scp path-to-file username@poseidon.whoi.edu:path-to-destination-folder```
 
-> Modify the fast-dump command you used above to automate your downloads from SRA
+#### Parallelizing sample downloads
+
+In addition to looping `fasterq-dump` to download multiple samples, there are also ways to parallelize the dowload (e.g. https://github.com/rvalieris/parallel-fastq-dump)
+
+-go onto poseidon and navigate to your working folder
+
+-start a tmux session
+
+-start a slurm job: e.g. ```srun -p compute --time=24:00:00 --ntasks-per-node=4 --mem=8gb --pty bash``` *in this case you request 4 cores*
+
+-load anaconda
+
+-activate your conda environment
+
+-conda install **parallel-fastq-dump**
+
+-use a for loop to download all the sequencing runs using parallel-fastq-dump and taking advantage of the 4 cores you requested e.g. ```parallel-fastq-dump --s ${i} --threads 4 -O sra/ --split-files --gzip```
