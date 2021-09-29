@@ -84,7 +84,7 @@ Now, on your own computer, navigate to those files and open the one ending in `*
 
 These sequences look OK, but we definitely have some low-quality (Phred < 20) bases. Let's get rid of them, and while we're at it, let's remove any stray adaptor sequence as well. This **should** get removed as part of the sequencing process, before reads even make it to the user, but the process isn't always perfect - especially for older sequences.
 
-For this, rather than requesting interactive `srun` resources, we're going to run our code in a slurm script that we submit to Poseidon. This requires embedding your code in a file with a slurm header that tells the system what you're requesting, who's requesting it, etc. The great thing about submitting scripts this way is that we don't need to hang around and wait for them to finish (or start, if they are big jobs!). Our job goes in a queue with everyone else's, and when it's our turn, it runs using the time and resources we request. In Poseidon, copy the `slurm_header.txt` script to a more descriptive name:
+For this, rather than requesting interactive `srun` resources, we're going to run our code in a slurm script that we submit to Poseidon. This requires embedding your code in a file with a slurm header that tells the system what you're requesting, who's requesting it, etc. The great thing about submitting scripts this way is that we don't need to hang around and wait for them to finish (or start, if they are big jobs!). Our job goes in a queue with everyone else's, and when it's our turn, it runs using the time and resources we request. In Poseidon, copy the `slurm_header.txt` script and give it a more descriptive name:
 
 `cp slurm_header.txt isopod_qc.txt`
 
