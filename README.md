@@ -41,7 +41,7 @@ Now, let's all download the file with the accession number SRR8281009. (This is 
 
 Check out your new `sra` folder. How big is it? The `du` ("Disk Usage") command is handy for this. `-s` makes it give a summary size over all the files in the directory, and `-h` displays it in handy human-friendly M, G, etc (rather than thousands of bytes.)
 
-```du -sh *fastq```
+`du -sh sra`
 
 Now, navigate into your `sra` folder. Hopefully you have 2 files ending in `_1.fastq` and `_2.fastq`. These are your forward and reverse reads from the single run you downloaded.
 
