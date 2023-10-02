@@ -13,7 +13,7 @@ First, we need to install `sra-tools` in a new conda environment. Let's create o
 ```
 conda create --name sra_get
 conda activate sra_get
-conda install -c bioconda sra-tools=2.11.0
+conda install -c bioconda sra-tools
 ```
 
 #### Request Poseidon resources for downloading
@@ -45,7 +45,34 @@ Check out your new `sra` folder. How big is it? The `du` ("Disk Usage") command 
 
 Now, navigate into your `sra` folder. Hopefully you have 2 files ending in `_1.fastq` and `_2.fastq`. These are your forward and reverse reads from the single run you downloaded.
 
-Let's clean up after ourselves. Your `srun` session is probably still running, even though we're done with it. You can check to see what jobs you're running using the `squeue` command:
+
+## Examine sequence quality
+
+All right, let's set up a new environment to do some quality control on our shiny new parasite sequence data. There are many ways to quality-trim data. I like Trim Galore!, which we'll use here. Another popular option is Trimmomatic.
+
+```
+conda create --name qc_trim
+conda activate qc_trim
+conda install -c bioconda trim-galore
+```
+
+The Trim Galore! conda install helpfully includes FastQC, a program which help you look at various quality parameters of your data. First, let's run it on our raw sequence data:
+
+```
+cd sra
+fastqc *fastq
+```
+
+When it's done, take a look at your folder again. You should now see a `.zip` and a `.html` file for each of your forward and reverse reads. Open up a *local* terminal, navigate to a folder you're using for class stuff, and copy these files over (necessary so we can view the data summaries).
+
+```
+scp USERNAME@poseidon.whoi.edu:/[PATH_TO_SRA_FOLDER]/*zip .
+scp USERNAME@poseidon.whoi.edu:/[PATH_TO_SRA_FOLDER]/*html .
+```
+
+Now, on your own computer, navigate to those files and open the one ending in `*.html`. This should open a webpage with a bunch of summary graphs. (This will open whether or not you're online - it is coded in html, but it's just rendering everything in the `*.zip` folder in a pretty, user-friendly format.)
+
+Let's clean up after ourselves on the HPC. Your `srun` session is probably still running, even though we're done with it. You can check to see what jobs you're running using the `squeue` command:
 
 `squeue -u USERNAME`
 
@@ -56,29 +83,6 @@ Cancel the session and free up the space. If you want to cancel all the jobs you
 If you're running a bunch of jobs and only want to cancel one of them, find its `JOBID` using `squeue` and cancel it specifically:
 
 `scancel JOBID`
-
-## Examine sequence quality
-
-All right, let's set up a new environment to do some quality control on our shiny new parasite sequence data. There are many ways to quality-trim data. I like Trim Galore!, which we'll use here. Another popular option is Trimmomatic.
-
-```
-conda create --name qc_trim
-conda activate qc_trim
-conda install -c bioconda trim-galore=0.6.7
-```
-
-The Trim Galore! conda install helpfully includes FastQC, a program which help you look at various quality parameters of your data. First, let's run it on our raw sequence data:
-
-`fastqc *fastqc`
-
-When it's done, take a look at your folder again. You should now see a `.zip` and a `.html` file for each of your forward and reverse reads. Open up a *local* terminal, navigate to a folder you're using for class stuff, and copy these files over (necessary so we can view the data summaries).
-
-```
-scp USERNAME@poseidon.whoi.edu:/[PATH_TO_SRA_FOLDER]/*zip .
-scp USERNAME@poseidon.whoi.edu:/[PATH_TO_SRA_FOLDER]/*html .
-```
-
-Now, on your own computer, navigate to those files and open the one ending in `*.html`. This should open a webpage with a bunch of summary graphs. (This will open whether or not you're online - it is coded in html, but it's just rendering everything in the `*.zip` folder in a pretty, user-friendly format.)
 
 ## Trim sequences and check quality again
 
