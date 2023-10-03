@@ -16,6 +16,29 @@ conda activate sra_get
 conda install -c bioconda sra-tools
 ```
 
+##### Using `mamba` to speed up downloads
+If this is taking a long time, a great alternative is `mamba`. `mamba` is a reimplementation of `conda` (so it does the exact same thing as `conda`, it just uses a different route to do so). Using a magic combination of _parallelization_, `C++`, and much faster solving using an improved algorithm (`libsolv`), `mamba` resolves all of our package installation woes. Most packages should be quick to install with `mamba`. 
+
+Sadly, `mamba` only became available out-of-the-box in `anaconda` versions from 2022.05 and later, so because our Poseidon module as of 10/2/2023 is from 2021, we have to install `mamba` before we can use it. So the steps will be:
+
+```
+conda create -n sra_get -c conda-forge -y mamba=1.5.1
+conda activate sra_get
+mamba install -c bioconda -y sra-tools
+```
+
+The `-y` flag says "yes" to `mamba` instead of asking us if downloads are okay. If `mamba` was already installed, we could:
+
+```
+mamba create --name sra_get
+mamba activate sra_get
+mamba install -c bioconda sra-tools
+```
+
+just like with `conda`; `mamba` works _exactly_ like `conda` does!
+
+![Speedup gif from https://blog.hpc.qmul.ac.uk/mamba.html](https://github.com/2023-environmental-bioinformatics/Lab-Sequence_Quality/blob/main/libmamba_classic_comparison.gif)
+
 #### Request Poseidon resources for downloading
 
 Since we're not downloading a lot right now, we could go ahead and do it on Poseidon as-is. However, it's good HPC manners to request time and resources first. Let's do that interatively with an `srun` request (make sure you've navigated to the folder you cloned from GitHub for this).
